@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 
 import { addMovie } from "../services/api";
+import Layout from "../components/layout";
 
 function Add() {
   const navigate = useNavigate();
@@ -22,19 +23,21 @@ function Add() {
 
   return (
     <>
-      <h1>Add</h1>
-      <form>
-        <label>Enter Movie Name</label>
-        <input type="text"></input>
-        <label>Enter Movie Year</label>
-        <input type="text"></input>
-      </form>
+      <Layout title="addform">
+        <h1>Add</h1>
+        <form>
+          <label>Enter Movie Name</label>
+          <input type="text"></input>
+          <label>Enter Movie Year</label>
+          <input type="text"></input>
+        </form>
 
-      <button onClick={() => addThisDummyMovie()}>add dummy movie</button>
+        <button onClick={() => addThisDummyMovie()}>add dummy movie</button>
 
-      <Link to="/">
-        <button>Submit</button>
-      </Link>
+        <Link to="/">
+          <button>Submit</button>
+        </Link>
+      </Layout>
     </>
   );
 }
