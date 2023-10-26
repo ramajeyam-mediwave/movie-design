@@ -1,20 +1,21 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
 import { addMovie } from "../services/api";
 import Layout from "../components/layout";
 
 function Add() {
   const navigate = useNavigate();
 
-  const [movieTitle, setMovieTitle] = useState("");
-  const [movieYear, setMovieYear] = useState("");
+  const [movieData, setMovieData] = useState({
+    title: "",
+    year: "",
+  });
 
   async function addThisDummyMovie() {
     try {
       const moviePayload = {
-        title: movieTitle,
-        year: parseInt(movieYear),
+        title: movieData.title,
+        year: parseInt(movieData.year),
       };
       const response = await addMovie(moviePayload);
       console.log(response);
@@ -25,6 +26,14 @@ function Add() {
     }
   }
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setMovieData({
+      ...movieData,
+      [name]: value,
+    });
+  };
+
   return (
     <>
       <Layout title="addform">
@@ -33,14 +42,16 @@ function Add() {
           <label>Enter Movie Name</label>
           <input
             type="text"
-            value={movieTitle}
-            onChange={(e) => setMovieTitle(e.target.value)}
+            name="title"
+            value={movieData.title}
+            onChange={(e) => handleInputChange(e)}
           />
           <label>Enter Movie Year</label>
           <input
             type="number"
-            value={movieYear}
-            onChange={(e) => setMovieYear(e.target.value)}
+            name="year"
+            value={movieData.year}
+            onChange={(e) => handleInputChange(e)}
           />
         </form>
 
