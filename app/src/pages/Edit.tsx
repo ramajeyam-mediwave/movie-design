@@ -1,6 +1,13 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
 
 function Edit() {
+  const { id } = useParams();
+
+  useEffect(() => {
+    console.log("Getting info of ", id);
+  }, [id]);
+
   return (
     <>
       <h1>Edit Form</h1>
