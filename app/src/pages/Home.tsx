@@ -3,14 +3,12 @@ import { Link } from "react-router-dom";
 import { getMovies, deleteMovie } from "../services/api";
 import "@picocss/pico";
 import Layout from "../components/layout";
+import { IMovie } from "../type";
 
-interface IMovie {
-  id: number;
-  title: string;
-  year: number;
+interface IHome {
+  handleEdit: (movie: IMovie) => void;
 }
-
-function Home() {
+const Home: React.FC<IHome> = ({ handleEdit }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const [movies, setMovies] = useState<IMovie[]>([]);
@@ -35,14 +33,14 @@ function Home() {
   }, [refresh]);
 
   async function handleDeleteMovie(id: number) {
-    // setRefresh(true);
+    setRefresh(true);
     try {
       await deleteMovie(id);
       setIsMovieDeleted(true);
     } catch (error) {
       console.error("Error deleting movie:", error);
     } finally {
-      // setRefresh(false);
+      setRefresh(false);
     }
   }
 
@@ -74,7 +72,7 @@ function Home() {
                   <h1>{m.year}</h1>
 
                   <Link to={`/edit/${m.id}`} className="pico-link">
-                    <button>Edit</button>
+                    <button onClick={() => handleEdit(m)}>Edit</button>
                   </Link>
                   <button
                     onClick={() => handleDeleteMovie(m.id)}
@@ -104,6 +102,6 @@ function Home() {
       )}
     </>
   );
-}
+};
 
 export default Home;
