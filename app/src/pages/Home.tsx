@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getMovies } from "../services/api";
-
+import { getMovies, deleteMovie } from "../services/api";
 import "@picocss/pico";
 import Layout from "../components/layout";
 
@@ -15,6 +14,7 @@ function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const [movies, setMovies] = useState<IMovie[]>([]);
+  const [isMovieDeleted, setIsMovieDeleted] = useState(false);
 
   useEffect(() => {
     console.log("Called once");
@@ -33,6 +33,22 @@ function Home() {
 
     getMoviesFromAPI();
   }, [refresh]);
+
+  async function handleDeleteMovie(id: number) {
+    // setRefresh(true);
+    try {
+      await deleteMovie(id);
+      setIsMovieDeleted(true);
+    } catch (error) {
+      console.error("Error deleting movie:", error);
+    } finally {
+      // setRefresh(false);
+    }
+  }
+
+  const closeDeleteDialog = () => {
+    setIsMovieDeleted(false);
+  };
 
   return (
     <>
@@ -60,12 +76,32 @@ function Home() {
                   <Link to={`/edit/${m.id}`} className="pico-link">
                     <button>Edit</button>
                   </Link>
+                  <button
+                    onClick={() => handleDeleteMovie(m.id)}
+                    className="pico-link"
+                  >
+                    Delete
+                  </button>
                 </article>
               ))}
             </div>
           )}
         </div>
       </Layout>
+      {isMovieDeleted && (
+        <dialog open>
+          <article>
+            <header>
+              <a
+                aria-label="Close"
+                className="close"
+                onClick={closeDeleteDialog}
+              ></a>
+            </header>
+            <p>Successfully deleted</p>
+          </article>
+        </dialog>
+      )}
     </>
   );
 }

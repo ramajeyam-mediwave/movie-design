@@ -11,7 +11,7 @@ function Add() {
     year: "",
   });
 
-  async function addThisDummyMovie() {
+  async function movie() {
     try {
       const moviePayload = {
         title: movieData.title,
@@ -55,10 +55,8 @@ function Add() {
           />
         </form>
 
-        <button onClick={addThisDummyMovie}>Add Dummy Movie</button>
-
         <Link to="/">
-          <button>Submit</button>
+          <button onClick={movie}>Submit</button>
         </Link>
       </Layout>
     </>
