@@ -1,66 +1,60 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { addMovie } from "../services/api";
+//final
+import { useNavigate } from "react-router-dom";
 import Layout from "../components/layout";
+import { addMovie } from "../services/api";
+import Form from "../components/MovieForm";
+import { IMovieAdd } from "../type";
+import { useState } from "react";
+import DeleteDialog from "../components/DeleteDialog";
 
-function Add() {
+function AddForm() {
   const navigate = useNavigate();
-
-  const [movieData, setMovieData] = useState({
+  const movie = {
     title: "",
-    year: "",
-  });
+    year: undefined,
+  };
 
-  async function movie() {
+  const [isMovieAdded, setIsMovieAdded] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
+
+  async function handleAddMovie(movie: IMovieAdd) {
     try {
       const moviePayload = {
-        title: movieData.title,
-        year: parseInt(movieData.year),
+        title: movie.title,
+        year: movie.year,
       };
       const response = await addMovie(moviePayload);
       console.log(response);
-      navigate("/");
+      setIsMovieAdded(true);
+      setAddError(null);
     } catch (error) {
       console.log("Errored");
       console.log(error);
+      setAddError("Error adding the movie.");
     }
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setMovieData({
-      ...movieData,
-      [name]: value,
-    });
+  const closeAddSuccessDialog = () => {
+    setIsMovieAdded(false);
+    setAddError(null);
+    navigate("/");
   };
 
   return (
     <>
-      <Layout title="addform">
-        <h1>Add</h1>
-        <form>
-          <label>Enter Movie Name</label>
-          <input
-            type="text"
-            name="title"
-            value={movieData.title}
-            onChange={(e) => handleInputChange(e)}
-          />
-          <label>Enter Movie Year</label>
-          <input
-            type="number"
-            name="year"
-            value={movieData.year}
-            onChange={(e) => handleInputChange(e)}
-          />
-        </form>
-
-        <Link to="/">
-          <button onClick={movie}>Submit</button>
-        </Link>
+      <Layout title="addForm">
+        <h1>AddForm</h1>
+        <Form handleAddMovie={handleAddMovie} emptyMovie={movie} />
       </Layout>
+
+      <DeleteDialog
+        isOpen={isMovieAdded || addError !== null}
+        onClose={closeAddSuccessDialog}
+      >
+        {addError ? addError : "Successfully added"}
+      </DeleteDialog>
     </>
   );
 }
 
-export default Add;
+export default AddForm;

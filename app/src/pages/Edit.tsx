@@ -1,85 +1,64 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+//final
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { IEdit, IMovieAdd } from "../type";
 import Layout from "../components/layout";
-import { IMovie } from "../type";
 import { updateMovie } from "../services/api";
+import Form from "../components/MovieForm";
+import Modal from "../components/DeleteDialog";
 
-interface IEditForm {
-  movie: IMovie;
-}
-
-const Edit: React.FC<IEditForm> = ({ movie }) => {
+const EditForm: React.FC<IEdit> = ({ movie }) => {
   const { id } = useParams();
-  const [editValue, setEditValue] = useState({
+  const navigate = useNavigate();
+  const editValue = {
     title: movie.title,
     year: movie.year,
-  });
+  };
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
 
   useEffect(() => {
     console.log("Getting info of ", id);
   }, [id]);
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const { name, value } = e.target;
-    setEditValue({ ...editValue, [name]: value });
-    console.log(editValue);
-  }
-
-  async function handleEditMovie() {
+  async function handleEditMovie(editedmovie: IMovieAdd) {
     try {
-      const moviePayload = {
-        title: editValue.title,
-        year: editValue.year,
-      };
-      const response = await updateMovie(moviePayload, movie.id);
+      const response = await updateMovie(editedmovie, movie.id);
       console.log(response);
+      setIsModalOpen(true);
+      setEditError(null);
     } catch (error) {
       console.log(error);
+      setEditError("Error editing the movie.");
     }
   }
 
+  const closeModalAndNavigate = () => {
+    setIsModalOpen(false);
+    setEditError(null);
+    navigate("/");
+  };
+
   return (
     <>
-      <Layout title="EDIT FORM">
+      <Layout title={`EditMovie${movie.title}`}>
         <h1>Edit Form</h1>
-        <form>
-          <label htmlFor="title">
-            Title
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={editValue.title}
-              placeholder="Title"
-              onChange={(e) => handleChange(e)}
-              required
-            />
-          </label>
-
-          <label htmlFor="year">
-            Year
-            <input
-              type="number"
-              id="year"
-              name="year"
-              value={editValue.year}
-              placeholder="Year"
-              onChange={(e) => handleChange(e)}
-              required
-            />
-          </label>
-          <div className="grid">
-            <Link to="/">
-              <button onClick={() => handleEditMovie()}>add</button>
-            </Link>
-            <Link to="/">
-              <button>Cancel</button>
-            </Link>
-          </div>
-        </form>
+        <Form
+          handleAddMovie={handleEditMovie}
+          emptyMovie={editValue}
+          type="edit"
+        />
       </Layout>
+
+      <Modal
+        isOpen={isModalOpen || editError !== null}
+        onClose={closeModalAndNavigate}
+      >
+        {editError ? editError : "Successfully edited"}
+      </Modal>
     </>
   );
 };
 
-export default Edit;
+export default EditForm;

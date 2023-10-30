@@ -1,29 +1,34 @@
+//final
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getMovies, deleteMovie } from "../services/api";
 import "@picocss/pico";
 import Layout from "../components/layout";
 import { IMovie } from "../type";
+import DeleteDialog from "../components/DeleteDialog";
+import LoadingIcon from "../components/Loading/LoadingIcon";
 
 interface IHome {
   handleEdit: (movie: IMovie) => void;
 }
+
 const Home: React.FC<IHome> = ({ handleEdit }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const [movies, setMovies] = useState<IMovie[]>([]);
   const [isMovieDeleted, setIsMovieDeleted] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log("Called once");
-
     async function getMoviesFromAPI() {
       setIsLoading(true);
       try {
         const response = await getMovies();
         setMovies(response.data);
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching movies:", error);
+        setDeleteError("Network error");
+        setIsMovieDeleted(true);
       } finally {
         setIsLoading(false);
       }
@@ -33,25 +38,26 @@ const Home: React.FC<IHome> = ({ handleEdit }) => {
   }, [refresh]);
 
   async function handleDeleteMovie(id: number) {
-    setRefresh(true);
     try {
       await deleteMovie(id);
       setIsMovieDeleted(true);
+      setRefresh((prev) => !prev);
     } catch (error) {
       console.error("Error deleting movie:", error);
-    } finally {
-      setRefresh(false);
+      setDeleteError("Error deleting the movie.");
     }
   }
 
   const closeDeleteDialog = () => {
     setIsMovieDeleted(false);
+    setDeleteError(null);
   };
 
   return (
     <>
       <Layout title="home">
         <h1>Home</h1>
+
         <div className="container">
           <Link to="/add" role="button" className="secondary">
             +
@@ -60,7 +66,7 @@ const Home: React.FC<IHome> = ({ handleEdit }) => {
             disabled={isLoading}
             onClick={() => setRefresh((prev) => !prev)}
           >
-            refresh list
+            {isLoading ? <LoadingIcon /> : <>refresh list</>}
           </button>
           {isLoading ? (
             <p>Loading movies!</p>
@@ -75,10 +81,11 @@ const Home: React.FC<IHome> = ({ handleEdit }) => {
                     <button onClick={() => handleEdit(m)}>Edit</button>
                   </Link>
                   <button
+                    disabled={isLoading}
                     onClick={() => handleDeleteMovie(m.id)}
                     className="pico-link"
                   >
-                    Delete
+                    {isLoading ? <LoadingIcon /> : <>Delete</>}
                   </button>
                 </article>
               ))}
@@ -86,20 +93,13 @@ const Home: React.FC<IHome> = ({ handleEdit }) => {
           )}
         </div>
       </Layout>
-      {isMovieDeleted && (
-        <dialog open>
-          <article>
-            <header>
-              <a
-                aria-label="Close"
-                className="close"
-                onClick={closeDeleteDialog}
-              ></a>
-            </header>
-            <p>Successfully deleted</p>
-          </article>
-        </dialog>
-      )}
+
+      <DeleteDialog
+        isOpen={isMovieDeleted || deleteError !== null}
+        onClose={closeDeleteDialog}
+      >
+        {deleteError ? deleteError : "Successfully deleted"}
+      </DeleteDialog>
     </>
   );
 };
