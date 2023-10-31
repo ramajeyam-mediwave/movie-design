@@ -2,12 +2,14 @@
 import { useState } from "react";
 import { IForm } from "../type";
 import { Link } from "react-router-dom";
+import LoadingIcon from "./Loading/LoadingIcon";
 
 const Form: React.FC<IForm> = ({ handleAddMovie, emptyMovie, type }) => {
   const [movie, setMovie] = useState({
     title: emptyMovie.title,
     year: emptyMovie.year,
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
@@ -16,6 +18,7 @@ const Form: React.FC<IForm> = ({ handleAddMovie, emptyMovie, type }) => {
   }
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setIsLoading(true);
     handleAddMovie(movie);
   }
   return (
@@ -47,14 +50,18 @@ const Form: React.FC<IForm> = ({ handleAddMovie, emptyMovie, type }) => {
 
       {type === "edit" ? (
         <>
-          <button type="submit">Save</button>
+          <button type="submit" disabled={isLoading}>
+            {isLoading && <LoadingIcon />}Save
+          </button>
           <Link to="/" role="button" className="secondary">
             cancel
           </Link>
         </>
       ) : (
         <>
-          <button type="submit">add movie</button>
+          <button type="submit" disabled={isLoading}>
+            {isLoading && <LoadingIcon />} Add
+          </button>
         </>
       )}
     </form>

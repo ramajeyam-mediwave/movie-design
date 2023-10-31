@@ -2,11 +2,9 @@
 import React from "react";
 import { DeleteDialogProps } from "../type";
 
-const DeleteDialog: React.FC<DeleteDialogProps> = ({
-  isOpen,
-  onClose,
-  children,
-}) => {
+
+
+const Model: React.FC<DeleteDialogProps> = ({ isOpen, onClose,children }) => {
   return (
     isOpen && (
       <dialog open>
@@ -21,4 +19,4 @@ const DeleteDialog: React.FC<DeleteDialogProps> = ({
   );
 };
 
-export default DeleteDialog;
+export default Model;

@@ -4,8 +4,8 @@ import { getMovies, deleteMovie } from "../services/api";
 import "@picocss/pico";
 import Layout from "../components/layout";
 import { IMovie } from "../type";
-import DeleteDialog from "../components/DeleteDialog";
 import LoadingIcon from "../components/Loading/LoadingIcon";
+import Model from "../components/Model";
 
 interface IHome {
   handleEdit: (movie: IMovie) => void;
@@ -18,8 +18,10 @@ const Home: React.FC<IHome> = ({ handleEdit }) => {
   const [isMovieDeleted, setIsMovieDeleted] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  // Initialize loading state for each movie
-  const [movieLoadingStates, setMovieLoadingStates] = useState<boolean[]>([]);
+  const [movieLoadingStates, setMovieLoadingStates] = useState<number | null>(
+    null
+  );
+  // const [loadingMovieId, setLoadingMovieId] = useState<number | null>(null);
 
   useEffect(() => {
     async function getMoviesFromAPI() {
@@ -27,8 +29,8 @@ const Home: React.FC<IHome> = ({ handleEdit }) => {
       try {
         const response = await getMovies();
         setMovies(response.data);
-        // Initialize loading state for each movie
-        setMovieLoadingStates(new Array(response.data.length).fill(false));
+
+        // setMovieLoadingStates(new Array(response.data.length).fill(false));
       } catch (error) {
         console.error("Error fetching movies:", error);
         setDeleteError("Network error");
@@ -41,11 +43,11 @@ const Home: React.FC<IHome> = ({ handleEdit }) => {
     getMoviesFromAPI();
   }, [refresh]);
 
-  async function handleDeleteMovie(id: number, index: number) {
-    // Create a copy of the loading state array and set loading for the specific movie
-    const updatedLoadingStates = [...movieLoadingStates];
-    updatedLoadingStates[index] = true;
-    setMovieLoadingStates(updatedLoadingStates);
+  async function handleDeleteMovie(id: number) {
+    // const updatedLoadingStates = [...movieLoadingStates];
+    // updatedLoadingStates[index] = true;
+    setMovieLoadingStates(id);
+    // console.log(updatedLoadingStates);
 
     try {
       await deleteMovie(id);
@@ -55,8 +57,8 @@ const Home: React.FC<IHome> = ({ handleEdit }) => {
       console.error("Error deleting movie:", error);
       setDeleteError("Error deleting the movie.");
     } finally {
-      updatedLoadingStates[index] = false;
-      setMovieLoadingStates(updatedLoadingStates);
+      //   updatedLoadingStates[index] = false;
+      //   setMovieLoadingStates(updatedLoadingStates);
     }
   }
 
@@ -81,7 +83,7 @@ const Home: React.FC<IHome> = ({ handleEdit }) => {
             {isLoading ? <LoadingIcon /> : <>refresh list</>}
           </button>
           <div className="grid">
-            {movies.map((m, index) => (
+            {movies.map((m) => (
               <article key={m.id}>
                 <h1>{m.title}</h1>
                 <h1>{m.year}</h1>
@@ -90,11 +92,11 @@ const Home: React.FC<IHome> = ({ handleEdit }) => {
                   <button onClick={() => handleEdit(m)}>Edit</button>
                 </Link>
                 <button
-                  disabled={movieLoadingStates[index]}
-                  onClick={() => handleDeleteMovie(m.id, index)}
+                  disabled={movieLoadingStates === m.id}
+                  onClick={() => handleDeleteMovie(m.id)}
                   className="pico-link"
                 >
-                  {movieLoadingStates[index] ? <LoadingIcon /> : <>Delete</>}
+                  {movieLoadingStates === m.id ? <LoadingIcon /> : <>Delete</>}
                 </button>
               </article>
             ))}
@@ -102,12 +104,12 @@ const Home: React.FC<IHome> = ({ handleEdit }) => {
         </div>
       </Layout>
 
-      <DeleteDialog
+      <Model
         isOpen={isMovieDeleted || deleteError !== null}
         onClose={closeDeleteDialog}
       >
         {deleteError ? deleteError : "Successfully deleted"}
-      </DeleteDialog>
+      </Model>
     </>
   );
 };

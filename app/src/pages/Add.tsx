@@ -5,7 +5,7 @@ import { addMovie } from "../services/api";
 import Form from "../components/MovieForm";
 import { IMovieAdd } from "../type";
 import { useState } from "react";
-import DeleteDialog from "../components/DeleteDialog";
+import Model from "../components/Model";
 
 function AddForm() {
   const navigate = useNavigate();
@@ -47,12 +47,12 @@ function AddForm() {
         <Form handleAddMovie={handleAddMovie} emptyMovie={movie} />
       </Layout>
 
-      <DeleteDialog
+      <Model
         isOpen={isMovieAdded || addError !== null}
         onClose={closeAddSuccessDialog}
       >
         {addError ? addError : "Successfully added"}
-      </DeleteDialog>
+      </Model>
     </>
   );
 }

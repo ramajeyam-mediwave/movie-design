@@ -5,7 +5,7 @@ import { IEdit, IMovieAdd } from "../type";
 import Layout from "../components/layout";
 import { updateMovie } from "../services/api";
 import Form from "../components/MovieForm";
-import Modal from "../components/DeleteDialog";
+import Modal from "../components/Model";
 
 const EditForm: React.FC<IEdit> = ({ movie }) => {
   const { id } = useParams();
